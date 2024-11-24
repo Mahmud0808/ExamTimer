@@ -163,7 +163,7 @@ const CountdownTimer = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-screen h-screen">
+    <div className="flex flex-col items-center justify-center min-w-screen min-h-screen py-12 xl:py-36">
       <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
         Exam Timer
       </h1>
