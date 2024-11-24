@@ -26,8 +26,10 @@ const CountdownTimer = () => {
 
     if (savedIsActive !== null) setIsActive(savedIsActive);
     if (savedIsPaused !== null) setIsPaused(savedIsPaused);
-    if (savedTimeLeft !== null) setTimeLeft(savedTimeLeft);
     if (savedDuration !== null) setDuration(savedDuration);
+
+    // Load initial time if timer is paused
+    if (savedTimeLeft !== null) setTimeLeft(savedTimeLeft);
   }, []);
 
   // Save data to local storage
@@ -35,9 +37,7 @@ const CountdownTimer = () => {
     saveToLocalStorage("isActive", isActive);
     saveToLocalStorage("isPaused", isPaused);
     saveToLocalStorage("timeLeft", timeLeft);
-    if (typeof duration === "number") saveToLocalStorage("duration", duration);
-    else removeFromLocalStorage("duration");
-  }, [isActive, isPaused, timeLeft, duration]);
+  }, [isActive, isPaused, timeLeft]);
 
   // Set duration
   const handleSetDuration = (): void => {
@@ -46,6 +46,7 @@ const CountdownTimer = () => {
       setIsPaused(false);
       setTimeLeft(typeof duration === "number" ? duration * 60 : 0);
 
+      saveToLocalStorage("duration", duration);
       removeFromLocalStorage("startTime");
 
       if (timerRef.current) {
@@ -115,6 +116,12 @@ const CountdownTimer = () => {
 
   // Update timer
   useEffect(() => {
+    // Load initial time if timer is running
+    if (isActive && !isPaused) {
+      const initialTimeLeft = calculateRemainingTime();
+      setTimeLeft(initialTimeLeft);
+    }
+
     if (isActive && !isPaused) {
       timerRef.current = setInterval(() => {
         const newTimeLeft = calculateRemainingTime();
