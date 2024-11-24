@@ -41,7 +41,7 @@ const CountdownTimer = () => {
 
   // Set duration
   const handleSetDuration = (): void => {
-    if (!isActive && typeof duration === "number" && duration > 0) {
+    if (!isActive && typeof duration === "number" && duration >= 0) {
       setIsActive(false);
       setIsPaused(false);
       setTimeLeft(typeof duration === "number" ? duration * 60 : 0);
@@ -150,10 +150,15 @@ const CountdownTimer = () => {
   }, [isActive, isPaused]);
 
   const handleDurationChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    if (Number(e.target.value) <= 0) e.target.value = "0";
+    const value = e.target.value;
 
     if (!isActive) {
-      setDuration(Number(e.target.value) || "");
+      if (value === "") {
+        setDuration("");
+      } else {
+        const numberValue = Number(value);
+        setDuration(numberValue >= 0 ? numberValue : 0);
+      }
     }
   };
 
