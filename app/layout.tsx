@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({
   weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
-})
+});
 
 export const metadata: Metadata = {
   title: "Exam Timer",
@@ -19,9 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.className} antialiased bg-yellow`}
-      >
+      <body className={`${inter.className} antialiased bg-yellow`}>
         {children}
       </body>
     </html>

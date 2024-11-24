@@ -4,6 +4,11 @@ import { useState, useRef, useEffect, ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Timer from "./Timer";
+import {
+  getFromLocalStorage,
+  removeFromLocalStorage,
+  saveToLocalStorage,
+} from "@/libs/utility/methods";
 
 const CountdownTimer = () => {
   const [duration, setDuration] = useState<number | string>("");
@@ -12,11 +17,36 @@ const CountdownTimer = () => {
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Load data from local storage
+  useEffect(() => {
+    const savedIsActive = getFromLocalStorage("isActive");
+    const savedIsPaused = getFromLocalStorage("isPaused");
+    const savedTimeLeft = getFromLocalStorage("timeLeft");
+    const savedDuration = getFromLocalStorage("duration");
+
+    if (savedIsActive !== null) setIsActive(savedIsActive);
+    if (savedIsPaused !== null) setIsPaused(savedIsPaused);
+    if (savedTimeLeft !== null) setTimeLeft(savedTimeLeft);
+    if (savedDuration !== null) setDuration(savedDuration);
+  }, []);
+
+  // Save data to local storage
+  useEffect(() => {
+    saveToLocalStorage("isActive", isActive);
+    saveToLocalStorage("isPaused", isPaused);
+    saveToLocalStorage("timeLeft", timeLeft);
+    if (typeof duration === "number") saveToLocalStorage("duration", duration);
+    else removeFromLocalStorage("duration");
+  }, [isActive, isPaused, timeLeft, duration]);
+
+  // Set duration
   const handleSetDuration = (): void => {
-    if (typeof duration === "number" && duration > 0) {
-      setTimeLeft(duration * 60);
+    if (!isActive && typeof duration === "number" && duration > 0) {
       setIsActive(false);
       setIsPaused(false);
+      setTimeLeft(typeof duration === "number" ? duration * 60 : 0);
+
+      removeFromLocalStorage("startTime");
 
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -24,17 +54,35 @@ const CountdownTimer = () => {
     }
   };
 
+  // Start timer
   const handleStart = (): void => {
     if (timeLeft > 0) {
+      if (!isActive && !isPaused) {
+        const startTime = new Date().getTime();
+        saveToLocalStorage("startTime", startTime);
+      }
+
+      if (isPaused) {
+        const currentTime = new Date().getTime();
+        const startTime = getFromLocalStorage("startTime");
+        const pauseTime = getFromLocalStorage("pauseTime") || currentTime;
+        const elapsedTime = currentTime - pauseTime;
+        saveToLocalStorage("startTime", startTime + elapsedTime);
+      }
+
       setIsActive(true);
       setIsPaused(false);
     }
   };
 
+  // Pause timer
   const handlePause = (): void => {
     if (isActive) {
       setIsPaused(true);
       setIsActive(false);
+
+      const currentTime = new Date().getTime();
+      saveToLocalStorage("pauseTime", currentTime);
 
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -42,27 +90,48 @@ const CountdownTimer = () => {
     }
   };
 
+  // Reset timer
   const handleReset = (): void => {
     setIsActive(false);
     setIsPaused(false);
     setTimeLeft(typeof duration === "number" ? duration * 60 : 0);
+
+    removeFromLocalStorage("startTime");
+    removeFromLocalStorage("pauseTime");
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
   };
 
+  // Calculate remaining time
+  const calculateRemainingTime = () => {
+    const currentTime = new Date().getTime();
+    const startTime = getFromLocalStorage("startTime");
+    const duration = getFromLocalStorage("duration");
+    const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+    return typeof duration === "number" ? duration * 60 - elapsedTime : 0;
+  };
+
+  // Update timer
   useEffect(() => {
     if (isActive && !isPaused) {
       timerRef.current = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 1) {
-            clearInterval(timerRef.current!);
-            return 0;
-          }
+        const newTimeLeft = calculateRemainingTime();
 
-          return prevTime - 1;
-        });
+        if (newTimeLeft <= 0) {
+          setIsActive(false);
+          setIsPaused(false);
+
+          removeFromLocalStorage("startTime");
+          removeFromLocalStorage("pauseTime");
+
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+        }
+
+        setTimeLeft(newTimeLeft);
       }, 1000);
     }
 
@@ -74,28 +143,29 @@ const CountdownTimer = () => {
   }, [isActive, isPaused]);
 
   const handleDurationChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setDuration(Number(e.target.value) || "");
+    if (Number(e.target.value) <= 0) e.target.value = "0";
+
+    if (!isActive) {
+      setDuration(Number(e.target.value) || "");
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center w-screen h-screen">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
+      <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
         Exam Timer
       </h1>
       <div className="flex items-center">
         <Input
           type="number"
           id="duration"
-          placeholder="Enter duration in minutes"
+          placeholder="Duration in minutes"
           value={duration}
           onChange={handleDurationChange}
-          className="flex-1 mr-4 rounded-md bg-white border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+          className="mr-3 rounded-md bg-white"
+          disabled={isActive}
         />
-        <Button
-          onClick={handleSetDuration}
-          variant="outline"
-          className="text-gray-800 dark:text-gray-200"
-        >
+        <Button onClick={handleSetDuration} disabled={isActive}>
           Set
         </Button>
       </div>
@@ -103,29 +173,28 @@ const CountdownTimer = () => {
         <Timer time={timeLeft} />
       </div>
       <div className="flex justify-center gap-4">
-        <Button
-          onClick={handleStart}
-          variant="outline"
-          className="text-gray-800 dark:text-gray-200"
-        >
-          {isPaused ? "Resume" : "Start"}
-        </Button>
-        {!isPaused && (
-          <Button
-            onClick={handlePause}
-            variant="outline"
-            className="text-gray-800 dark:text-gray-200"
-          >
+        {!isActive && (
+          <Button onClick={handleStart} variant="outline">
+            {isPaused ? (
+              <img src="/resume.svg" className="h-5 w-5" alt="" />
+            ) : (
+              <img src="/start.svg" className="h-5 w-5" alt="" />
+            )}
+            {isPaused ? "Resume" : "Start"}
+          </Button>
+        )}
+        {isActive && !isPaused && (
+          <Button onClick={handlePause} variant="outline">
+            <img src="/pause.svg" className="h-5 w-5" alt="" />
             Pause
           </Button>
         )}
-        <Button
-          onClick={handleReset}
-          variant="outline"
-          className="text-gray-800 dark:text-gray-200"
-        >
-          Reset
-        </Button>
+        {(isActive || isPaused) && (
+          <Button onClick={handleReset} variant="destructive">
+            <img src="/reset.svg" className="h-5 w-5" alt="" />
+            Reset
+          </Button>
+        )}
       </div>
     </div>
   );
