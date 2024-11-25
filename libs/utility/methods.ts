@@ -1,6 +1,8 @@
 import { Time } from "../types";
 
 export const getFormattedTime = (time: number): Time => {
+  if (time < 0) return { hours: "00", minutes: "00", seconds: "00" };
+
   let hours = String(Math.floor(time / (60 * 60))).padStart(2, "0");
   let minutes = String(Math.floor((time / 60) % 60)).padStart(2, "0");
   let seconds = String(Math.floor(time % 60)).padStart(2, "0");
