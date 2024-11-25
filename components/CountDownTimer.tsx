@@ -164,7 +164,7 @@ const CountdownTimer = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-w-screen min-h-screen py-12 xl:py-36">
-      <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
+      <h1 className="text-4xl font-bold mb-4 text-black dark:text-gray-200 text-center select-none">
         Exam Timer
       </h1>
       <div className="flex items-center">
@@ -177,7 +177,11 @@ const CountdownTimer = () => {
           className="mr-3 rounded-md bg-white"
           disabled={isActive}
         />
-        <Button onClick={handleSetDuration} disabled={isActive}>
+        <Button
+          onClick={handleSetDuration}
+          disabled={isActive}
+          className="select-none"
+        >
           Set
         </Button>
       </div>
@@ -186,7 +190,11 @@ const CountdownTimer = () => {
       </div>
       <div className="flex justify-center gap-4">
         {!isActive && (
-          <Button onClick={handleStart} variant="outline">
+          <Button
+            onClick={handleStart}
+            variant="outline"
+            className="select-none"
+          >
             {isPaused ? (
               <img src="/resume.svg" className="h-5 w-5" alt="" />
             ) : (
@@ -196,13 +204,21 @@ const CountdownTimer = () => {
           </Button>
         )}
         {isActive && !isPaused && (
-          <Button onClick={handlePause} variant="outline">
+          <Button
+            onClick={handlePause}
+            variant="outline"
+            className="select-none"
+          >
             <img src="/pause.svg" className="h-5 w-5" alt="" />
             Pause
           </Button>
         )}
         {(isActive || isPaused) && (
-          <Button onClick={handleReset} variant="destructive">
+          <Button
+            onClick={handleReset}
+            variant="destructive"
+            className="select-none"
+          >
             <img src="/reset.svg" className="h-5 w-5" alt="" />
             Reset
           </Button>
