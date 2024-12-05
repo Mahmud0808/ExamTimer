@@ -9,6 +9,7 @@ import {
   removeFromLocalStorage,
   saveToLocalStorage,
 } from "@/lib/utility/methods";
+import Image from "next/image";
 
 const CountdownTimer = () => {
   const [duration, setDuration] = useState<number | string>("");
@@ -199,9 +200,9 @@ const CountdownTimer = () => {
             className="select-none"
           >
             {isPaused ? (
-              <img src="/resume.svg" className="h-5 w-5" alt="" />
+              <Image src="/resume.svg" width={20} height={20} alt="" />
             ) : (
-              <img src="/start.svg" className="h-5 w-5" alt="" />
+              <Image src="/start.svg" width={20} height={20} alt="" />
             )}
             {isPaused ? "Resume" : "Start"}
           </Button>
@@ -212,7 +213,7 @@ const CountdownTimer = () => {
             variant="outline"
             className="select-none"
           >
-            <img src="/pause.svg" className="h-5 w-5" alt="" />
+            <Image src="/pause.svg" width={20} height={20} alt="" />
             Pause
           </Button>
         )}
@@ -222,7 +223,7 @@ const CountdownTimer = () => {
             variant="destructive"
             className="select-none"
           >
-            <img src="/reset.svg" className="h-5 w-5" alt="" />
+            <Image src="/reset.svg" width={20} height={20} alt="" />
             Reset
           </Button>
         )}
