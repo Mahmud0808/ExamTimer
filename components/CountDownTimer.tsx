@@ -65,7 +65,7 @@ const CountdownTimer = () => {
 
       if (isPaused) {
         const currentTime = new Date().getTime();
-        const startTime = getFromLocalStorage("startTime");
+        const startTime = getFromLocalStorage("startTime") as number;
         const pauseTime = getFromLocalStorage("pauseTime") || currentTime;
         const elapsedTime = currentTime - pauseTime;
         saveToLocalStorage("startTime", startTime + elapsedTime);

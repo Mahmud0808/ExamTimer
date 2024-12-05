@@ -10,7 +10,7 @@ export const getFormattedTime = (time: number): Time => {
   return { hours, minutes, seconds };
 };
 
-export const saveToLocalStorage = (key: string, value: any) => {
+export const saveToLocalStorage = (key: string, value: boolean | number) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
