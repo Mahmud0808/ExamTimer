@@ -164,9 +164,12 @@ const CountdownTimer = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-w-screen min-h-screen py-12 xl:py-36">
-      <h1 className="text-4xl font-bold mb-4 text-black dark:text-gray-200 text-center select-none">
-        Exam Timer
-      </h1>
+      <div className="text-animation">
+        <div className="text-wrapper">
+          <h2>Exam Timer</h2>
+          <h2>Exam Timer</h2>
+        </div>
+      </div>
       <div className="flex items-center">
         <Input
           type="number"
