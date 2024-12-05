@@ -8,7 +8,7 @@ import {
   getFromLocalStorage,
   removeFromLocalStorage,
   saveToLocalStorage,
-} from "@/libs/utility/methods";
+} from "@/lib/utility/methods";
 
 const CountdownTimer = () => {
   const [duration, setDuration] = useState<number | string>("");

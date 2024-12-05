@@ -1,4 +1,4 @@
-import { getFormattedTime } from "@/libs/utility/methods";
+import { getFormattedTime } from "@/lib/utility/methods";
 
 const Timer = ({ time }: { time: number }) => {
   const timeLeft = getFormattedTime(time);
